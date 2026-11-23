@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Investment Command Center</title>
+<style>
+:root{--bg:#0B0F14;--cd:#171D27;--cd2:#1B2230;--ln:#293241;--tx:#EEF1F6;--mu:#8B95A7;--gr:#3ECF8E;--rd:#F0605D;--bt:#F7931A;--qq:#7C8CFF;--wn:#E8C547;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 Inter,Geist,system-ui,-apple-system,"Segoe UI",sans-serif}
+.app{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+nav{border-right:1px solid var(--ln);padding:20px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+.logo{font-weight:700;font-size:13px;letter-spacing:.8px;padding:0 10px 4px}.tag{font-size:11px;color:var(--mu);padding:0 10px 16px}
+nav a{display:flex;gap:10px;padding:9px 10px;border-radius:10px;color:var(--mu);text-decoration:none;cursor:pointer}
+nav a:hover{background:var(--cd)}nav a.on{background:var(--cd2);color:var(--tx)}
+main{padding:24px 28px 60px;max-width:1100px;width:100%}
+h2{margin:0;font-size:22px}h3{margin:0 0 10px;font-size:15px}
+.mu{color:var(--mu)}.sm{font-size:12px}.gr{color:var(--gr)}.rd{color:var(--rd)}.wn{color:var(--wn)}
+.hd{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cd{background:var(--cd);border:1px solid var(--ln);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 2px 10px #0003}
+.g4 .cd,.g2 .cd{margin:0}.m{transition:.2s}.m:hover{transform:translateY(-2px);border-color:#3a475c}
+.big{font-size:22px;font-weight:700;margin:4px 0 2px;letter-spacing:-.3px}
+button,input,select,textarea{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--ln);border-radius:10px;padding:8px 11px}
+button{cursor:pointer}button:hover{border-color:var(--mu)}
+.pri{background:var(--gr);border-color:var(--gr);color:#06281a;font-weight:600}.dng{color:var(--rd)}
+.pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11px;font-weight:600}
+.BTC{background:#f7931a22;color:var(--bt)}.QQQ{background:#7c8cff22;color:var(--qq)}
+.row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--ln);flex-wrap:wrap}.row:first-of-type{border-top:0}
+.row>.f{flex:1;min-width:140px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.bar input{flex:1;min-width:130px}
+.seg button{padding:4px 10px;font-size:12px;margin-left:4px}.seg .on{background:var(--cd2);border-color:var(--mu)}
+.ch{width:100%;height:auto}.ch text{fill:var(--mu);font-size:10px}
+.lg{display:flex;gap:14px;font-size:12px;color:var(--mu);margin-top:6px;flex-wrap:wrap}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.i{width:1.15em;height:1.15em;vertical-align:-.22em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}nav a .i{width:20px;height:20px}.pill .i{height:1.3em;vertical-align:-.3em}
+.emp{padding:22px;text-align:center;color:var(--mu);border:1px dashed var(--ln);border-radius:12px}
+.note{background:#e8c5470f;border:1px solid #e8c54744;color:var(--wn);padding:9px 12px;border-radius:10px;font-size:12px;margin-bottom:12px}
+#md{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:20;padding:14px}
+#md.on{display:flex}#md>div{background:var(--cd);border:1px solid var(--ln);border-radius:16px;padding:20px;width:100%;max-width:520px;max-height:90vh;overflow:auto}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px}.fg label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mu)}.fg .w{grid-column:1/-1}
+#tip{position:fixed;background:var(--cd2);border:1px solid var(--ln);border-radius:10px;padding:8px 10px;font-size:12px;pointer-events:none;display:none;z-index:30;line-height:1.6}
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--gr);color:#06281a;padding:9px 16px;border-radius:99px;font-weight:600;display:none;z-index:40}
+.sk{height:80px;border-radius:14px;background:linear-gradient(90deg,var(--cd),var(--cd2),var(--cd));background-size:200% 100%;animation:s 1.2s infinite}@keyframes s{to{background-position:-200% 0}}
+.lo nav{display:none}.lo .app{display:block}
+table{width:100%;border-collapse:collapse}td,th{padding:8px 6px;text-align:right;border-top:1px solid var(--ln);font-size:13px}th{color:var(--mu);font-weight:500;border:0}td:first-child,th:first-child{text-align:left}
+@media(max-width:800px){.app{display:block}main{padding:16px 14px 90px}
+nav{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;justify-content:space-around;background:var(--cd);border-top:1px solid var(--ln);border-right:0;padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));z-index:10;gap:0}
+.logo,.tag,nav a span{display:none}nav a{padding:8px;font-size:18px}.g4{grid-template-columns:1fr 1fr}.g2,.g3{grid-template-columns:1fr}.fg{grid-template-columns:1fr}:root{padding-bottom:0}}
+</style></head>
+<body>
+<div class="app"><nav id="nv"></nav><main id="pg"><div class="sk"></div></main></div>
+<div id="md"><div id="mb"></div></div><div id="tip"></div><div id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const D0=()=>({tx:[],cash:[],snaps:[],prices:{},market:{},set:{budget:3000000,day:25,tz:"Asia/Jakarta"}});
+let S=D0(),ref=null,db=null,dl=null,page="overview",rng="ALL",F={q:"",a:"",m:"",asc:false},CM="",timer=null,CH={};
+const NAV=[["overview","🏠","Overview"],["portfolio","💼","My Portfolio"],["tx","🧾","Transactions"],["perf","📈","Performance"],["market","☀️","Market Insights"],["review","📅","Monthly Review"],["cash","👛","Cash"],["settings","⚙️","Settings"]];
+const e=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const uid=()=>crypto.randomUUID();
+const idr=n=>n==null?"—":(n<0?"-":"")+"Rp "+Math.round(Math.abs(n)).toLocaleString("id-ID");
+const usd=n=>n==null?"—":(n<0?"-":"")+"US$"+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const pc=n=>n==null?"—":(n>0?"+":"")+n.toFixed(2)+"%";
+const qy=n=>(+n||0).toFixed(8).replace(/0+$/,"").replace(/\.$/,"");
+const sh=n=>Math.abs(n)>=1e6?(n/1e6).toFixed(Math.abs(n)>=1e7?0:1)+"jt":Math.abs(n)>=1e3?Math.round(n/1e3)+"rb":Math.round(n);
+const cl=n=>n==null?"mu":n>=0?"gr":"rd";
+const today=()=>new Intl.DateTimeFormat("sv-SE",{timeZone:S.set.tz}).format(new Date());
+const fd=d=>new Date(d+"T00:00").toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"});
+const fm=m=>new Date(m+"-01T00:00").toLocaleDateString("id-ID",{month:"short",year:"numeric"});
+function toast(t){const x=$("#toast");x.textContent=t;x.style.display="block";setTimeout(()=>x.style.display="none",2200)}
+const SB=supabase.createClient("https://oarccawdovaayupdmmkr.supabase.co","sb_publishable_xC65DiNBc9_rO_qnujqUEA_KRA8lRtG");
+let UID=null,LAST=null,syncing=false;
+const clone=o=>JSON.parse(JSON.stringify(o));
+function save(){clearTimeout(timer);timer=setTimeout(sync,400)}
+async function sync(){
+ if(syncing){timer=setTimeout(sync,500);return}syncing=true;
+ const ck=r=>{if(r.error)throw r.error},chg=(a,b)=>a.filter(x=>{const o=b.find(y=>y.id===x.id);return!o||JSON.stringify(o)!==JSON.stringify(x)}),del=(a,b)=>b.filter(o=>!a.some(x=>x.id===o.id)).map(o=>o.id);
+ try{
+  let c=chg(S.tx,LAST.tx);
+  if(c.length)ck(await SB.from("transactions").upsert(c.map(t=>({id:t.id,asset:t.asset,type:t.type,tx_date:t.date,qty:t.qty,price:t.price,amount:t.amount,fee:t.fee||0,currency:t.cur,idr_value:t.idr,idr_estimate:!!t.est,venue:t.venue||null,notes:t.notes||null}))));
+  c=del(S.tx,LAST.tx);if(c.length)ck(await SB.from("transactions").delete().in("id",c));
+  c=chg(S.cash,LAST.cash);
+  if(c.length)ck(await SB.from("cash_entries").upsert(c.map(x=>({id:x.id,entry_date:x.date,type:x.type,amount:x.amount,note:x.note||null}))));
+  c=del(S.cash,LAST.cash);if(c.length)ck(await SB.from("cash_entries").delete().in("id",c));
+  c=S.snaps.filter(x=>!LAST.snaps.some(o=>o.id===x.id));
+  if(c.length)ck(await SB.from("snapshots").insert(c.map(x=>{const{id,date,...rest}=x;return{id,snap_date:date,data:rest}})));
+  if(JSON.stringify([S.set,S.market])!==JSON.stringify([LAST.set,LAST.market]))ck(await SB.from("settings").upsert({user_id:UID,data:{set:S.set,market:S.market}}));
+  const M={btc:["BTCIDR","IDR"],qqq:["QQQ","USD"],fx:["USDIDR","IDR"]};
+  for(const k in M){const p=S.prices[k];if(p&&p.src==="manual"&&JSON.stringify(p)!==JSON.stringify(LAST.prices[k]))ck(await SB.from("prices").insert({symbol:M[k][0],value:p.v,currency:M[k][1],price_type:"manual",source:"manual (input di web)",as_of:new Date(p.ts).toISOString()}))}
+  LAST=clone(S);
+ }catch(x){toast("Gagal menyimpan: "+(x.message||x))}
+ syncing=false}
+async function load(){
+ const q=t=>SB.from(t).select("*"),lp=y=>SB.from("prices").select("*").eq("symbol",y).order("as_of",{ascending:false}).limit(1);
+ const R=await Promise.all([q("transactions"),q("cash_entries"),q("snapshots"),q("settings"),lp("BTCIDR"),lp("QQQ"),lp("USDIDR")]);
+ R.forEach(r=>{if(r.error)throw r.error});
+ const [tx,ca,sn,se,pb,pq,pf]=R,n=x=>x==null?null:+x;
+ S=D0();
+ S.tx=tx.data.map(r=>({id:r.id,asset:r.asset,type:r.type,date:r.tx_date,qty:+r.qty,price:n(r.price),amount:+r.amount,fee:+r.fee,cur:r.currency,idr:n(r.idr_value),est:r.idr_estimate,venue:r.venue||"",notes:r.notes||""}));
+ S.cash=ca.data.map(r=>({id:r.id,date:r.entry_date,type:r.type,amount:+r.amount,note:r.note||""}));
+ S.snaps=sn.data.map(r=>({...r.data,id:r.id,date:r.snap_date}));
+ const d=se.data[0]?.data||{},st=d.set||d;["budget","day","tz"].forEach(k=>{if(st[k]!=null)S.set[k]=st[k]});S.market=d.market||{};
+ [["btc",pb],["qqq",pq],["fx",pf]].forEach(([k,r])=>{const x=r.data[0];if(x)S.prices[k]={v:+x.value,ts:Date.parse(x.as_of),src:x.source,type:x.price_type,cur:x.currency}});
+ LAST=clone(S)}
+function loginView(m){document.body.classList.add("lo");$("#nv").innerHTML="";$("#pg").innerHTML=`<div class="cd" style="max-width:380px;margin:12vh auto"><h2>Investment Command Center</h2><div class="mu sm" style="margin:4px 0 14px">Track Smart. Invest Consistently. Build Wealth.</div><div class="fg"><label class="w">Email<input id="le" type="email" autocomplete="username"></label><label class="w">Password<input id="lp" type="password" autocomplete="current-password"></label></div>${m?`<div class="note" style="margin-top:12px">${e(m)}</div>`:""}<div style="margin-top:14px"><button class="pri" data-a="login" style="width:100%">Masuk</button></div></div>`}
+async function start(){
+ const{data:{session}}=await SB.auth.getSession();
+ if(!session){loginView();return}
+ document.body.classList.remove("lo");UID=session.user.id;ref=true;
+ try{await load()}catch(x){$("#pg").innerHTML='<div class="cd"><div class="note">Gagal memuat data: '+e(x.message||x)+'</div></div>';return}
+ const h=location.hash.slice(1);if(PG[h])page=h;render()}
+addEventListener("keydown",ev=>{if(ev.key==="Enter"&&ev.target.id==="lp")document.querySelector("[data-a=login]").click()});
+  function modal(h){$("#mb").innerHTML=h;$("#md").classList.add("on")}function closeM(){$("#md").classList.remove("on")}
+
+/* ===== financial engine (single source of truth) ===== */
+function calc(cut){
+ const P={BTC:{q:0,c:0,ci:0,r:0,ri:0,miss:0,est:0},QQQ:{q:0,c:0,ci:0,r:0,ri:0,miss:0,est:0}};
+ [...S.tx].filter(t=>!cut||t.date<=cut).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.id<b.id?-1:1).forEach(t=>{
+  const p=P[t.asset],q=+t.qty,fee=+t.fee||0,id=t.idr==null||t.idr===""?null:+t.idr;
+  if(t.type==="Buy"){p.q+=q;p.c+=+t.amount+fee;id==null?p.miss=1:p.ci+=id;if(t.est)p.est=1}
+  else{const f=p.q>0?Math.min(1,q/p.q):0;p.r+=(+t.amount-fee)-p.c*f;if(id!=null)p.ri+=id-p.ci*f;p.c-=p.c*f;p.ci-=p.ci*f;p.q=Math.max(0,p.q-q)}
+ });
+ const pr=S.prices,B=P.BTC,Q=P.QQQ,fx=pr.fx?.v,pb=pr.btc?.v,pq=pr.qqq?.v;
+ B.avg=B.q?B.c/B.q:0;B.mv=B.q?(pb!=null?B.q*pb:null):0;B.upl=B.mv==null?null:B.mv-B.ci;B.pct=B.upl==null||!B.ci?null:B.upl/B.ci*100;
+ Q.avg=Q.q?Q.c/Q.q:0;Q.mvN=Q.q?(pq!=null?Q.q*pq:null):0;Q.mv=Q.q?(Q.mvN!=null&&fx!=null?Q.mvN*fx:null):0;
+ Q.uplN=Q.mvN==null?null:Q.mvN-Q.c;Q.pctN=Q.uplN==null||!Q.c?null:Q.uplN/Q.c*100;Q.upl=Q.mv==null||Q.miss?null:Q.mv-Q.ci;Q.pct=Q.upl==null||!Q.ci?null:Q.upl/Q.ci*100;
+ const cap=B.ci+Q.ci,mv=B.mv==null||Q.mv==null?null:B.mv+Q.mv,upl=mv==null||Q.miss?null:mv-cap;
+ return{B,Q,cap,mv,upl,ret:upl==null||!cap?null:upl/cap*100,realized:B.r+Q.ri,miss:Q.miss,est:Q.est};
+}
+function months(){if(!S.tx.length)return[];const a=S.tx.map(t=>t.date).sort()[0].slice(0,7),b=today().slice(0,7),o=[];let[y,m]=a.split("-").map(Number);
+ for(;;){const k=y+"-"+String(m).padStart(2,"0");if(k>b)break;o.push(k);if(++m>12){m=1;y++}}return o}
+function pts(k){const now=today().slice(0,7);return months().map(m=>{const c=calc(m+"-31"),a=k==="ALL"?c.cap:c[k==="BTC"?"B":"Q"].ci;
+ const sn=[...S.snaps].filter(s=>s.date.slice(0,7)===m).sort((x,y)=>x.date<y.date?-1:1).pop();let mv=null,src=null;
+ if(sn){mv=k==="ALL"?sn.mv:sn[k==="BTC"?"btcMv":"qqqMv"];src="snapshot"}
+ else if(m===now){const L=calc();mv=k==="ALL"?L.mv:L[k==="BTC"?"B":"Q"].mv;if(mv!=null)src="live"}
+ return{m,cap:a,mv,src,sn}})}
+function cut(P){const n={"1M":1,"3M":3,"6M":6}[rng];if(n)return P.slice(-n);if(rng==="YTD")return P.filter(p=>p.m>=today().slice(0,4));return P}
+
+/* ===== charts ===== */
+function chart(P,id){
+ if(!P.length)return'<div class="emp">📭 Belum ada data. Tambahkan transaksi pertama.</div>';
+ CH[id]=P;const W=640,H=250,L=44,R=10,T=10,Bt=26,v=P.flatMap(p=>[p.cap,p.mv]).filter(x=>x!=null),mx=Math.max(...v,1)*1.1;
+ const x=i=>L+(P.length>1?i*(W-L-R)/(P.length-1):(W-L-R)/2),y=n=>T+(1-n/mx)*(H-T-Bt);
+ const ln=k=>{let d="",s=0;P.forEach((p,i)=>{if(p[k]==null){s=0;return}d+=(s?"L":"M")+x(i)+" "+y(p[k]);s=1});return d};
+ let g="";for(let i=0;i<=4;i++){const n=mx*i/4/1.1*1.1;g+=`<line x1="${L}" x2="${W-R}" y1="${y(n)}" y2="${y(n)}" stroke="#293241" stroke-dasharray="3 4"/><text x="${L-6}" y="${y(n)+3}" text-anchor="end">${sh(n)}</text>`}
+ const dots=(k,c)=>P.map((p,i)=>p[k]==null?"":`<circle cx="${x(i)}" cy="${y(p[k])}" r="3.5" fill="${c}"/>`).join("");
+ const xl=P.map((p,i)=>`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${fm(p.m)}</text>`).join("");
+ const hv=P.map((p,i)=>`<rect data-ch="${id}" data-i="${i}" x="${x(i)-(W-L-R)/Math.max(P.length,1)/2}" y="0" width="${(W-L-R)/Math.max(P.length,1)}" height="${H}" fill="transparent"/>`).join("");
+ const pend=P.some(p=>p.mv==null);
+ return`<svg class="ch" viewBox="0 0 ${W} ${H}">${g}${xl}<path d="${ln("cap")}" fill="none" stroke="var(--qq)" stroke-width="2.2"/><path d="${ln("mv")}" fill="none" stroke="var(--gr)" stroke-width="2.2"/>${dots("cap","var(--qq)")}${dots("mv","var(--gr)")}${hv}</svg>
+ <div class="lg"><span><i class="dot" style="background:var(--qq)"></i>Cumulative Invested Capital</span><span><i class="dot" style="background:var(--gr)"></i>Portfolio Market Value</span>${pend?'<span class="wn">⏳ Historical market value not available (Pending Historical Price Data)</span>':""}</div>`}
+function donut(a,b){if(a==null||b==null||a+b<=0)return'<div class="emp">☁️ Isi harga di Market Insights untuk melihat alokasi.</div>';
+ const T=a+b,C=251.33,la=a/T*C;return`<svg viewBox="0 0 100 100" width="150" height="150"><g transform="rotate(-90 50 50)" fill="none" stroke-width="14"><circle cx="50" cy="50" r="40" stroke="var(--bt)" stroke-dasharray="${la} ${C-la}"/><circle cx="50" cy="50" r="40" stroke="var(--qq)" stroke-dasharray="${C-la} ${la}" stroke-dashoffset="${-la}"/></g></svg>`}
+document.addEventListener("mouseover",ev=>{const t=ev.target,tp=$("#tip");if(!t.dataset||t.dataset.i==null){return}
+ const p=CH[t.dataset.ch][+t.dataset.i],u=p.mv==null?null:p.mv-p.cap;
+ tp.innerHTML=`<b>${fm(p.m)}</b> <span class="mu">${p.sn?"· snapshot "+fd(p.sn.date):p.src==="live"?"· live":""}</span><br>Modal: ${idr(p.cap)}<br>Market value: ${p.mv==null?'<span class="wn">pending price data</span>':idr(p.mv)}<br>Unrealized P/L: <span class="${cl(u)}">${idr(u)}</span><br>Return: <span class="${cl(u)}">${u==null||!p.cap?"—":pc(u/p.cap*100)}</span>`;tp.style.display="block"});
+document.addEventListener("mousemove",ev=>{const tp=$("#tip");tp.style.left=Math.min(ev.clientX+14,innerWidth-230)+"px";tp.style.top=ev.clientY+14+"px"});
+document.addEventListener("mouseout",ev=>{if(ev.target.dataset?.i!=null)$("#tip").style.display="none"});
+
+/* ===== pages ===== */
+const card=(ic,l,v,sub,c)=>`<div class="cd m"><div class="mu sm">${ic} ${l}</div><div class="big ${c||""}">${v}</div><div class="sm ${c||"mu"}">${sub||"&nbsp;"}</div></div>`;
+function cashAvail(){return S.cash.reduce((a,c)=>a+(["Cash In","Carry Over"].includes(c.type)?1:-1)*c.amount,0)}
+function pOverview(){const c=calc(),h=new Date().getHours(),gt=h<11?"Good morning":h<15?"Good afternoon":h<19?"Good evening":"Good night";
+ const lastp=Math.max(0,...["btc","qqq","fx"].map(k=>S.prices[k]?.ts||0)),d=today().split("-"),day=+S.set.day;
+ let nx=new Date(+d[0],+d[1]-1,day);if(nx<new Date(+d[0],+d[1]-1,+d[2]))nx=new Date(+d[0],+d[1],day);const dd=Math.ceil((nx-new Date(+d[0],+d[1]-1,+d[2]))/864e5);
+ const miss=c.mv==null&&S.tx.length?'<div class="note">⏳ Harga terbaru belum diisi, jadi market value & P/L belum bisa dihitung. <a href="#market" style="color:inherit">Isi harga di Market Insights →</a></div>':"";
+ const tot=c.mv,al=(v)=>tot?(v/tot*100).toFixed(1)+"%":"—";
+ return`<div class="hd"><div><h2>${gt}, Investor.</h2><div class="mu sm">${new Date().toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"})} · Review ${dd===0?"hari ini 📅":"dalam "+dd+" hari"} · Harga diperbarui: ${lastp?new Date(lastp).toLocaleString("id-ID"):"belum ada"}</div></div>
+ <div><button class="pri" data-a="addtx">＋ Add Transaction</button> <button data-go="review">📅 Monthly Review</button></div></div>${miss}
+ <div class="g4">${card("💼","Total Invested Capital",idr(c.cap),c.est||c.miss?"termasuk estimasi IDR QQQ":"modal BTC + QQQ")}${card("🚀","Current Portfolio Value",idr(c.mv),"Your money is on a mission.")}${card(c.upl>=0?"🌱":"☁️","Unrealized P/L",idr(c.upl),"belum direalisasikan",cl(c.upl))}${card("📊","Portfolio Return",pc(c.ret),"terhadap modal",cl(c.ret))}</div>
+ <div class="cd"><div class="hd" style="margin:0 0 8px"><h3 style="margin:0">Portfolio Performance</h3><div class="seg">${["1M","3M","6M","YTD","ALL"].map(r=>`<button class="${r===rng?"on":""}" data-rng="${r}">${r}</button>`).join("")}</div></div>${chart(cut(pts("ALL")),"ov")}</div>
+ <div class="g2"><div class="cd"><h3>Asset Allocation</h3><div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">${donut(c.B.mv,c.Q.mv)}<div style="flex:1;min-width:160px"><div class="row"><div class="f"><i class="dot" style="background:var(--bt)"></i>₿ Bitcoin</div><div>${al(c.B.mv)}<div class="sm mu">${idr(c.B.mv)}</div></div></div><div class="row"><div class="f"><i class="dot" style="background:var(--qq)"></i>Ⓠ</div><div>${al(c.Q.mv)}<div class="sm mu">${idr(c.Q.mv)}</div></div></div></div></div>
+ <div class="row"><div class="f">👛 Cash (terpisah dari portofolio)</div><b>${idr(cashAvail())}</b></div><div class="sm mu">Cash is also a position.</div></div>
+ <div class="cd"><h3>Portfolio Activity</h3>${txRows([...S.tx].sort((a,b)=>a.date<b.date?1:-1).slice(0,5),false)||'<div class="emp">Belum ada transaksi</div>'}<div style="margin-top:10px"><button data-go="tx">View All Transactions</button></div></div></div>`}
+function stat(l,v,c){return`<div class="cd" style="margin:0;background:var(--cd2)"><div class="mu sm">${l}</div><div class="${c||""}" style="font-weight:600">${v}</div></div>`}
+function pPortfolio(){const c=calc(),B=c.B,Q=c.Q,tot=c.mv,al=v=>tot&&v!=null?(v/tot*100).toFixed(1)+"%":"—";
+ return`<div class="hd"><h2>💼 My Portfolio</h2></div>
+ <div class="cd"><h3><span class="pill BTC">₿ BTC</span> Bitcoin</h3><div class="g3">${stat("Total kepemilikan",qy(B.q)+" BTC")}${stat("Remaining cost basis",idr(B.ci))}${stat("Average buy price",idr(B.avg)+"/BTC")}${stat("Current BTC price",idr(S.prices.btc?.v))}${stat("Market value",idr(B.mv))}${stat("Unrealized P/L",idr(B.upl)+" ("+pc(B.pct)+")",cl(B.upl))}${stat("% dari portofolio",al(B.mv))}${stat("Realized P/L",idr(B.r),cl(B.r))}</div><div style="margin-top:12px">${chart(pts("BTC"),"pb")}</div></div>
+ <div class="cd"><h3><span class="pill QQQ">Ⓠ</span> Invesco QQQ ETF</h3>${Q.miss?'<div class="note">Ada pembelian QQQ tanpa nilai rupiah. Lengkapi lewat Edit transaksi (rekonsiliasi).</div>':Q.est?'<div class="note">Modal rupiah QQQ masih estimasi, belum diverifikasi. Rekonsiliasi lewat Edit transaksi.</div>':""}<div class="g3">${stat("Total kepemilikan",qy(Q.q)+" saham")}${stat("Cost basis (USD)",usd(Q.c))}${stat("Average buy price",usd(Q.avg))}${stat("Current QQQ price",usd(S.prices.qqq?.v))}${stat("Market value (USD)",usd(Q.mvN))}${stat("Market value (IDR)",idr(Q.mv))}${stat("Unrealized P/L (USD)",usd(Q.uplN)+" ("+pc(Q.pctN)+")",cl(Q.uplN))}${stat("Unrealized P/L (IDR)",idr(Q.upl)+" ("+pc(Q.pct)+")",cl(Q.upl))}${stat("% dari portofolio",al(Q.mv))}</div><div style="margin-top:12px">${chart(pts("QQQ"),"pq")}</div></div>`}
+function txRows(L,act){return L.map(t=>`<div class="row"><span class="pill ${t.asset}">${t.asset==="BTC"?"₿ BTC":"Ⓠ"}</span><div class="f"><b>${t.type}</b> ${qy(t.qty)} @ ${t.asset==="BTC"?idr(t.price):usd(t.price)}<div class="sm mu">${fd(t.date)}${t.venue?" · "+e(t.venue):""}${t.notes?" · "+e(t.notes):""}</div></div><div style="text-align:right">${t.asset==="BTC"?idr(t.amount):usd(t.amount)}<div class="sm mu">${t.idr!=null&&t.asset!=="BTC"?idr(t.idr)+(t.est?" (est.)":""):t.asset==="QQQ"?"IDR belum diisi":""}</div></div>${act?`<button data-a="edtx" data-id="${t.id}">✎</button><button class="dng" data-a="deltx" data-id="${t.id}">✕</button>`:""}</div>`).join("")}
+function pTx(){let L=S.tx.filter(t=>(!F.a||t.asset===F.a)&&(!F.m||t.date.startsWith(F.m))&&(!F.q||JSON.stringify(t).toLowerCase().includes(F.q.toLowerCase())));
+ L.sort((a,b)=>(a.date<b.date?-1:1)*(F.asc?1:-1));
+ return`<div class="hd"><h2>🧾 Transactions</h2><div><button data-a="csv">⬇ Export CSV</button> <button class="pri" data-a="addtx">＋ Add Transaction</button></div></div>
+ <div class="bar"><input id="fq" placeholder="Search…" value="${e(F.q)}"><select id="fa"><option value="">Semua aset</option><option${F.a==="BTC"?" selected":""}>BTC</option><option${F.a==="QQQ"?" selected":""}>QQQ</option></select><select id="fmn"><option value="">Semua periode</option>${months().reverse().map(m=>`<option value="${m}"${F.m===m?" selected":""}>${fm(m)}</option>`).join("")}</select><button data-a="sort">Tanggal ${F.asc?"↑":"↓"}</button></div>
+ <div class="cd">${txRows(L,true)||'<div class="emp">🧾 Tidak ada transaksi.</div>'}</div>`}
+function pPerf(){const c=calc(),sn=[...S.snaps].sort((a,b)=>a.date<b.date?-1:1);
+ const rows=sn.map((s,i)=>{const pv=sn[i-1],d=pv&&s.upl!=null&&pv.upl!=null?s.upl-pv.upl:null;return`<tr><td>${fd(s.date)}</td><td>${idr(s.cap)}</td><td>${idr(s.mv)}</td><td class="${cl(s.upl)}">${idr(s.upl)}</td><td class="${cl(s.ret)}">${pc(s.ret)}</td><td class="${cl(d)}">${idr(d)}</td><td>${pc(s.btcRet)}</td><td>${pc(s.qqqRet)}</td></tr>`}).join("");
+ return`<div class="hd"><h2>📈 Performance</h2></div><div class="g4">${card("💼","Invested Capital",idr(c.cap))}${card("🚀","Market Value",idr(c.mv))}${card("🌱","Unrealized P/L",idr(c.upl),"",cl(c.upl))}${card("💰","Realized P/L",idr(c.realized),"",cl(c.realized))}</div>
+ <div class="g3" style="margin-bottom:14px">${card("📊","Total Return",pc(c.ret),"",cl(c.ret))}${card("₿","BTC Return",pc(c.B.pct),"",cl(c.B.pct))}${card("Ⓠ","QQQ Return (IDR)",pc(c.Q.pct),"USD: "+pc(c.Q.pctN),cl(c.Q.pct))}</div>
+ <div class="cd"><h3>Invested Capital vs Market Value</h3>${chart(pts("ALL"),"pf")}</div>
+ <div class="cd"><h3>Snapshot History (bulanan)</h3>${rows?`<div style="overflow-x:auto"><table><tr><th>Tanggal</th><th>Modal</th><th>Value</th><th>Unrealized</th><th>Return</th><th>Δ P/L</th><th>BTC</th><th>QQQ</th></tr>${rows}</table></div>`:'<div class="emp">☁️ Belum ada snapshot. Buat di Monthly Review untuk melihat perbandingan bulanan.</div>'}</div>`}
+const MK=[["btcD","BTC Dominance (%)"],["etf","Spot BTC ETF Net Flow"],["sent","Market Sentiment (mis. Fear & Greed)"],["halv","Halving Cycle (catatan)"],["ndx","Nasdaq-100 Performance"],["ust","US Treasury Yield (%)"],["cpi","US Inflation (%)"],["fed","Fed Funds Rate (%)"],["chg","Perubahan harian/mingguan/bulanan"]];
+function pMarket(){const P=S.prices,r=S.market.regime||"",ic={Bullish:"☀️",Neutral:"⛅",Bearish:"☁️","High Volatility":"⚡"};
+ const pi=(k,l,cur)=>`<label class="mu sm">${l}<input data-p="${k}" inputmode="decimal" value="${P[k]?.v??""}" placeholder="manual"></label><div class="sm mu" style="align-self:end;padding-bottom:10px">${P[k]?cur+" · "+e(P[k].src||"manual")+" · "+new Date(P[k].ts).toLocaleString("id-ID"):"belum diisi"}</div>`;
+ return`<div class="hd"><h2>☀️ Market Insights</h2></div><div class="note">Harga diisi otomatis tiap hari oleh skrip terjadwal, atau bisa kamu timpa manual di sini. Sumber dan waktu selalu tercatat.</div>
+ <div class="cd"><h3>Harga acuan (untuk valuasi)</h3><div class="fg">${pi("btc","BTC/IDR","IDR")}${pi("qqq","QQQ (USD)","USD")}${pi("fx","USD/IDR","IDR")}</div><div class="sm mu" style="margin-top:8px">Untuk menimpa manual: isi lalu keluar dari kolom untuk menyimpan.</div></div>
+ <div class="cd"><h3>Market Regime</h3><div class="seg">${Object.keys(ic).map(k=>`<button class="${r===k?"on":""}" data-reg="${k}">${ic[k]} ${k}</button>`).join("")}</div><div class="sm mu" style="margin-top:8px">${r?ic[r]+" "+r+" (diisi manual)":"Belum dipilih."} · Not every dip needs a reaction.</div></div>
+ <div class="cd"><h3>Indikator (manual)</h3><div class="fg">${MK.map(([k,l])=>`<label>${l}<input data-mk="${k}" value="${e(S.market[k]?.v||"")}"></label>`).join("")}</div></div>`}
+function snapNow(){const c=calc(),pr=S.prices;return{cap:c.cap,mv:c.mv,btcMv:c.B.mv,qqqMv:c.Q.mv,upl:c.upl,ret:c.ret,btcRet:c.B.pct,qqqRet:c.Q.pct,btcQ:c.B.q,qqqQ:c.Q.q,btcP:pr.btc||null,qqqP:pr.qqq||null,fx:pr.fx||null}}
+function pReview(){const sn=[...S.snaps].sort((a,b)=>a.date<b.date?-1:1),dd=today().slice(0,8)+String(S.set.day).padStart(2,"0"),n=snapNow();
+ return`<div class="hd"><h2>📅 Monthly Review</h2></div>
+ <div class="cd"><h3>Buat snapshot baru</h3><div class="note">Snapshot memakai harga yang tersimpan di Market Insights. Isi harga penutupan tanggal ${S.set.day} dulu (QQQ: sesi bursa AS terakhir sebelum tanggal itu bila akhir pekan/libur). Snapshot lama tidak pernah ditimpa.</div>
+ <div class="g3" style="margin-bottom:12px">${stat("Modal kumulatif",idr(n.cap))}${stat("Market value",idr(n.mv))}${stat("Unrealized P/L",idr(n.upl),cl(n.upl))}</div>
+ <div class="fg"><label>Tanggal review<input type="date" id="rd" value="${dd}"></label><label>Rekomendasi<select id="rr"><option>Buy</option><option>Hold</option><option selected>Wait and See</option><option>Reduce Exposure</option></select></label>
+ <label class="w">Market analysis (makro, suku bunga, inflasi, USD, siklus BTC/halving, ETF flow, sentimen)<textarea id="ra" rows="3"></textarea></label><label class="w">Alasan rekomendasi<textarea id="rs" rows="2"></textarea></label><label class="w">Catatan risiko<textarea id="rk" rows="2"></textarea></label><label class="w">Catatan pribadi<textarea id="rn" rows="2"></textarea></label></div>
+ <div style="margin-top:12px"><button class="pri" data-a="snap">📸 Simpan snapshot</button></div><div class="sm mu" style="margin-top:6px">Rekomendasi hanya catatan, tidak memengaruhi transaksi atau perhitungan.</div></div>
+ <div class="cd"><h3>Riwayat review</h3>${sn.length?sn.slice().reverse().map((s,i,A)=>{const pv=A[i+1],df=(a,b)=>pv&&a!=null&&b!=null?(a-b):null;return`<details style="border-top:1px solid var(--ln);padding:10px 0"><summary><b>${fd(s.date)}</b> · <span class="pill QQQ">${e(s.rec)}</span> · ${idr(s.mv)}</summary><div class="sm" style="margin-top:8px;line-height:1.8">BTC ${idr(s.btcP?.v)} · QQQ ${usd(s.qqqP?.v)} · USD/IDR ${idr(s.fx?.v)}<br>Modal ${idr(s.cap)} · Value ${idr(s.mv)} · P/L <span class="${cl(s.upl)}">${idr(s.upl)}</span> · Return ${pc(s.ret)}<br>BTC ${qy(s.btcQ)} · QQQ ${qy(s.qqqQ)}${pv?`<br><span class="mu">vs bulan lalu: modal ${idr(df(s.cap,pv.cap))} · value ${idr(df(s.mv,pv.mv))} · P/L ${idr(df(s.upl,pv.upl))} · BTC ${qy(s.btcQ-pv.btcQ)} · QQQ ${qy(s.qqqQ-pv.qqqQ)}</span>`:""}
+ ${s.mv==null?'<br><span class="wn">Pending Historical Price Data</span>':""}${s.ana?"<br><b>Analisis:</b> "+e(s.ana):""}${s.why?"<br><b>Alasan:</b> "+e(s.why):""}${s.risk?"<br><b>Risiko:</b> "+e(s.risk):""}${s.notes?"<br><b>Catatan:</b> "+e(s.notes):""}</div></details>`}).join(""):'<div class="emp">📅 Belum ada review. Slow and steady, wealth is building.</div>'}</div>`}
+function pCash(){const ms=[...new Set([today().slice(0,7),...months()])].sort().reverse(),m=CM||ms[0],inv=S.tx.filter(t=>t.type==="Buy"&&t.date.startsWith(m)).reduce((a,t)=>a+(+t.idr||0),0),bd=+S.set.budget;
+ return`<div class="hd"><h2>👛 Cash Management</h2><select id="cm">${ms.map(x=>`<option value="${x}"${x===m?" selected":""}>${fm(x)}</option>`).join("")}</select></div>
+ <div class="g4">${card("👛","Available Cash",idr(cashAvail()),"amunisi peluang berikutnya","wn")}${card("🎯","Monthly Budget",idr(bd))}${card("🚀","Invested "+fm(m),idr(inv),"dari transaksi Buy")}${card("🧮","Remaining Budget",idr(bd-inv),"",cl(bd-inv))}</div>
+ <div class="note">Cash tidak dihitung sebagai modal investasi maupun keuntungan. Cash is also a position.</div>
+ <div class="cd"><h3>Catat pergerakan cash</h3><div class="fg"><label>Tanggal<input type="date" id="cd" value="${today()}"></label><label>Jenis<select id="ct"><option>Cash In</option><option>Cash Out</option><option>Investment Allocation</option><option>Carry Over</option></select></label><label>Jumlah (Rp)<input id="ca" inputmode="numeric"></label><label>Catatan<input id="cn"></label></div><div style="margin-top:10px"><button class="pri" data-a="addcash">Tambah</button></div></div>
+ <div class="cd"><h3>Riwayat</h3>${[...S.cash].sort((a,b)=>a.date<b.date?1:-1).map(c=>`<div class="row"><div class="f"><b>${c.type}</b><div class="sm mu">${fd(c.date)} ${e(c.note)}</div></div><b class="${["Cash In","Carry Over"].includes(c.type)?"gr":"rd"}">${idr(c.amount)}</b><button class="dng" data-a="delcash" data-id="${c.id}">✕</button></div>`).join("")||'<div class="emp">Belum ada catatan cash.</div>'}</div>`}
+function pSettings(){return`<div class="hd"><h2>⚙️ Settings</h2></div><div class="cd"><div class="fg"><label>Base currency<input value="IDR" disabled></label><label>Primary assets<input value="BTC, QQQ" disabled></label><label>Monthly investment budget (Rp)<input data-s="budget" inputmode="numeric" value="${S.set.budget}"></label><label>Monthly review date<input data-s="day" inputmode="numeric" value="${S.set.day}"></label><label>Timezone<select data-s="tz">${["Asia/Jakarta","Asia/Makassar","Asia/Jayapura","America/New_York","UTC"].map(z=>`<option${z===S.set.tz?" selected":""}>${z}</option>`).join("")}</select></label><label>Theme / Data source<input value="Dark · Skrip harian + manual" disabled></label></div></div>
+ <div class="cd"><h3>Data & backup</h3><div class="bar"><button data-a="csv">⬇ Export transaksi (CSV)</button><button data-a="bak">⬇ Backup semua data (JSON)</button><button data-a="logout">Keluar</button></div><div class="sm mu">Data tersimpan di Supabase milikmu, dilindungi login dan aturan akses per akun.</div></div>`}
+  /* ===== custom icon set (inline SVG) ===== */
+const L=d=>`<svg class="i" viewBox="0 0 24 24">${d}</svg>`;
+const IC={"₿":`<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#F7931A" stroke="none"/><g transform="rotate(14 12 12)" stroke="#fff" stroke-width="1.7"><path d="M9.5 7h3.6a2 2 0 010 4H9.5M9.5 11h4.2a2 2 0 010 4H9.5M9.5 7v8M11 5.2V7M13.2 5.2V7M11 15v1.8M13.2 15v1.8"/></g></svg>`,
+"Ⓠ":`<svg class="i" style="width:1.95em" viewBox="0 0 38 24"><rect x="1" y="2" width="36" height="20" rx="6" fill="#7C8CFF" stroke="none"/><text x="4.5" y="16.3" font-size="12.5" font-weight="800" fill="#0B0F14" stroke="none" font-family="Inter,system-ui,sans-serif" textLength="29" lengthAdjust="spacingAndGlyphs">QQQ</text></svg>`,
+"🚀":L('<path d="M12 3c3 2 5 6 4 11l-4 4-4-4c-1-5 1-9 4-11zM9 18l-3 3M15 18l3 3"/><circle cx="12" cy="9.5" r="1.5"/>'),
+"💼":L('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M3 13h18"/>'),
+"🧾":L('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/>'),
+"📈":L('<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>'),
+"\u2600":L('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
+"📅":L('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>'),
+"👛":L('<path d="M3 7v11a2 2 0 002 2h15a1 1 0 001-1v-9a1 1 0 00-1-1H5a2 2 0 01-2-2 2 2 0 012-2h13v3"/><circle cx="16.5" cy="14" r="1"/>'),
+"\u2699":L('<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>'),
+"🏠":L('<path d="M3 11l9-8 9 8M5 10v10h14V10M10 20v-6h4v6"/>'),
+"🌱":L('<path d="M12 20v-9M12 11c0-4 3-6 7-6 0 4-2 6-7 6zM12 14c0-3-2-5-6-5 0 3 2 5 6 5z"/>'),
+"\u2601":L('<path d="M7 18a4 4 0 01-.5-8A5.5 5.5 0 0117 8.5 4.8 4.8 0 0117 18z"/>'),
+"📊":L('<path d="M5 20v-8M12 20V5M19 20v-5"/>'),
+"🎯":L('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>'),
+"🧮":L('<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/>'),
+"💰":L('<circle cx="12" cy="12" r="9"/><path d="M12 7v10M14.5 9.5C14 8.6 13 8 12 8s-2.5.6-2.5 1.8 1.2 1.6 2.5 2 2.5.8 2.5 2.2S13 16 12 16s-2-.6-2.5-1.5"/>'),
+"📸":L('<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>'),
+"⏳":L('<path d="M6 3h12M6 21h12M8 3v3l4 6-4 6v3M16 3v3l-4 6 4 6v3"/>'),
+"📭":L('<path d="M3 13l3-8h12l3 8v6H3zM3 13h5l1 2h6l1-2h5"/>'),
+"⛅":L('<circle cx="8" cy="8" r="2.5"/><path d="M9 19a3.5 3.5 0 01-.3-7 5 5 0 019.6 1.5A3.2 3.2 0 0117 19z"/>'),
+"⚡":L('<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>'),
+"⬇":L('<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>'),
+"⬆":L('<path d="M12 20V9M7 13l5-5 5 5M5 4h14"/>')};
+function skin(s){return s.replace(/₿|Ⓠ|🚀|💼|🧾|📈|☀️?|📅|👛|⚙️?|🏠|🌱|☁️?|📊|🎯|🧮|💰|📸|⏳|📭|⛅|⚡|⬇|⬆/gu,m=>IC[m.replace(/\uFE0F/g,"")]||m)}
+const PG={overview:pOverview,portfolio:pPortfolio,tx:pTx,perf:pPerf,market:pMarket,review:pReview,cash:pCash,settings:pSettings};
+function render(){const y=scrollY;$("#nv").innerHTML=`<div class="logo">INVESTMENT COMMAND CENTER</div><div class="tag">Track Smart. Invest Consistently. Build Wealth.</div>`+NAV.map(n=>`<a class="${n[0]===page?"on":""}" data-go="${n[0]}" title="${n[2]}">${n[1]}<span>${n[2]}</span></a>`).join("");
+ $("#pg").innerHTML=skin(PG[page]());$("#nv").innerHTML=skin($("#nv").innerHTML);scrollTo(0,y)}
+
+/* ===== transaction form ===== */
+function txForm(t){t=t||{asset:"BTC",type:"Buy",date:today()};const q=t.asset==="QQQ";
+ return`<h3>${t.id?"Edit":"Add"} transaction</h3><div class="fg" id="tf" data-id="${t.id||""}"><label>Asset<select name="asset"><option${t.asset==="BTC"?" selected":""}>BTC</option><option${q?" selected":""}>QQQ</option></select></label><label>Type<select name="type"><option>Buy</option><option${t.type==="Sell"?" selected":""}>Sell</option></select></label>
+ <label>Date<input type="date" name="date" value="${t.date}"></label><label>Currency<input name="cur" disabled value="${q?"USD":"IDR"}"></label>
+ <label>Quantity<input name="qty" inputmode="decimal" value="${t.qty??""}"></label><label>Execution price<input name="price" inputmode="decimal" value="${t.price??""}"></label>
+ <label>Amount (total)<input name="amount" inputmode="decimal" value="${t.amount??""}"></label><label>Fee<input name="fee" inputmode="decimal" value="${t.fee??""}"></label>
+ <label class="w qo" style="${q?"":"display:none"}">Nilai rupiah transaksi (IDR) <span class="wn">· kosongkan bila belum tahu</span><input name="idr" inputmode="numeric" value="${t.idr??""}"></label>
+ <label class="w qo" style="${q?"":"display:none"}"><span><input type="checkbox" name="est"${t.est?" checked":""}> Nilai rupiah masih estimasi (belum diverifikasi)</span></label>
+ <label>Exchange / Broker<input name="venue" value="${e(t.venue||"")}"></label><label>Notes<input name="notes" value="${e(t.notes||"")}"></label></div>
+ <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end"><button data-a="cm">Batal</button><button class="pri" data-a="savetx">Simpan</button></div>`}
+function readTx(){const o={};document.querySelectorAll("#tf [name]").forEach(i=>o[i.name]=i.type==="checkbox"?i.checked:i.value);return o}
+document.addEventListener("input",ev=>{const i=ev.target;if(!i.closest("#tf"))return;const f=readTx(),n=x=>parseFloat(String(f[x]).replace(",","."));
+ if(i.name==="asset"){const q=f.asset==="QQQ";i.closest("#tf").querySelector("[name=cur]").value=q?"USD":"IDR";document.querySelectorAll(".qo").forEach(x=>x.style.display=q?"":"none")}
+ const s=k=>document.querySelector(`#tf [name=${k}]`);
+ if((i.name==="qty"||i.name==="price")&&n("qty")>0&&n("price")>0)s("amount").value=+(n("qty")*n("price")).toFixed(8);
+ if(i.name==="amount"&&n("amount")>0&&n("qty")>0)s("price").value=+(n("amount")/n("qty")).toFixed(8)});
+
+/* ===== actions ===== */
+function dlf(name,data){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data]));a.download=name;a.click()}
+document.addEventListener("click",async ev=>{const t=ev.target.closest("[data-a],[data-go],[data-rng],[data-reg]");if(!t)return;const d=t.dataset;
+ if(d.go){page=d.go;location.hash=d.go;render();return}
+ if(d.rng){rng=d.rng;render();return}
+ if(d.reg){S.market.regime=d.reg;save();render();return}
+ const a=d.a;
+ if(a==="addtx")modal(txForm());
+ else if(a==="edtx")modal(txForm(S.tx.find(x=>x.id===d.id)));
+ else if(a==="cm")closeM();
+ else if(a==="deltx")modal(`<h3>Hapus transaksi?</h3><p class="mu">Tindakan ini mengubah semua perhitungan portofolio.</p><div style="display:flex;gap:8px;justify-content:flex-end"><button data-a="cm">Batal</button><button class="dng" data-a="deltx2" data-id="${d.id}">Hapus</button></div>`);
+ else if(a==="deltx2"){S.tx=S.tx.filter(x=>x.id!==d.id);save();closeM();render();toast("Transaksi dihapus")}
+ else if(a==="savetx"){const f=readTx(),n=x=>parseFloat(String(f[x]).replace(",",".")),q=f.asset==="QQQ";
+  if(!(n("qty")>0)||!(n("amount")>0)||!f.date){toast("Isi tanggal, quantity, dan amount");return}
+  const fee=n("fee")||0,price=n("price")>0?n("price"):n("amount")/n("qty");
+  const o={id:$("#tf").dataset.id||uid(),asset:f.asset,type:f.type,date:f.date,qty:n("qty"),price,amount:n("amount"),fee,cur:q?"USD":"IDR",venue:f.venue,notes:f.notes,
+   idr:q?(String(f.idr).trim()===""?null:Number(String(f.idr).replace(/\D/g,""))):n("amount")+(f.type==="Sell"?-fee:fee),est:q&&!!f.est};
+  const i=S.tx.findIndex(x=>x.id===o.id);i>=0?S.tx[i]=o:S.tx.push(o);save();closeM();render();toast("Transaksi tersimpan ✓")}
+ else if(a==="sort"){F.asc=!F.asc;render()}
+ else if(a==="csv"){const H=["date","asset","type","qty","price","amount","fee","currency","idr_value","idr_estimate","venue","notes"];
+  dlf("transactions.csv",[H.join(","),...[...S.tx].sort((x,y)=>x.date<y.date?-1:1).map(x=>[x.date,x.asset,x.type,x.qty,x.price,x.amount,x.fee,x.cur,x.idr??"",x.est?1:0,x.venue,x.notes].map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(","))].join("\n"))}
+ else if(a==="bak")dlf("icc-backup-"+today()+".json",JSON.stringify(S,null,1));
+ else if(a==="addcash"){const am=Number($("#ca").value.replace(/\D/g,""));if(!am){toast("Isi jumlah");return}S.cash.push({id:uid(),date:$("#cd").value,type:$("#ct").value,amount:am,note:$("#cn").value});save();render();toast("Cash dicatat ✓")}
+ else if(a==="delcash"){S.cash=S.cash.filter(x=>x.id!==d.id);save();render()}
+ else if(a==="login"){const{error}=await SB.auth.signInWithPassword({email:$("#le").value.trim(),password:$("#lp").value});if(error){loginView("Email atau password salah.");return}await start()}
+ else if(a==="logout"){await SB.auth.signOut();location.reload()}
+ else if(a==="snap"){const n=snapNow();S.snaps.push({id:uid(),date:$("#rd").value,...n,rec:$("#rr").value,ana:$("#ra").value,why:$("#rs").value,risk:$("#rk").value,notes:$("#rn").value});save();render();toast("Snapshot tersimpan 📸")}
+});
+document.addEventListener("change",ev=>{const i=ev.target,d=i.dataset;
+ if(i.id==="fq"||i.id==="fa"||i.id==="fmn"){F.q=$("#fq").value;F.a=$("#fa").value;F.m=$("#fmn").value;render();return}
+ if(i.id==="cm"){CM=i.value;render();return}
+ if(d.p){const r=i.value.trim(),v=d.p==="qqq"?parseFloat(r.replace(/,/g,"")):parseFloat(r.replace(/\./g,"").replace(",","."));if(isNaN(v)){delete S.prices[d.p]}else S.prices[d.p]={v,ts:Date.now(),src:"manual",type:"manual",cur:d.p==="qqq"?"USD":"IDR"};save();render();toast("Harga disimpan")}
+ else if(d.mk){S.market[d.mk]={v:i.value,ts:Date.now(),src:"manual"};save()}
+ else if(d.s){S.set[d.s]=d.s==="tz"?i.value:Number(i.value)||S.set[d.s];save();toast("Pengaturan disimpan")}
+});
+addEventListener("hashchange",()=>{const h=location.hash.slice(1);if(PG[h]){page=h;render()}});
+$("#md").addEventListener("click",ev=>{if(ev.target.id==="md")closeM()});
+
+start();
+</script></body></html>
