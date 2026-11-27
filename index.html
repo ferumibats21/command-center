@@ -92,10 +92,10 @@ async function sync(){
  syncing=false}
 async function load(){
  const q=t=>SB.from(t).select("*"),lp=y=>SB.from("prices").select("*").eq("symbol",y).order("as_of",{ascending:false}).limit(1);
- const R=await Promise.all([q("transactions"),q("cash_entries"),q("snapshots"),q("settings"),lp("BTCIDR"),lp("QQQ"),lp("USDIDR")]);
+  const R=await Promise.all([q("transactions"),q("cash_entries"),q("snapshots"),q("settings"),lp("BTCIDR"),lp("QQQ"),lp("USDIDR"),SB.from("portfolio_daily").select("day,btc_value,qqq_value,total_value").order("day",{ascending:true}).limit(2000)]);
  R.forEach(r=>{if(r.error)throw r.error});
- const [tx,ca,sn,se,pb,pq,pf]=R,n=x=>x==null?null:+x;
- S=D0();
+  const [tx,ca,sn,se,pb,pq,pf,pd]=R,n=x=>x==null?null:+x;
+  S=D0();S.daily=pd.data.map(r=>({day:r.day,btc:n(r.btc_value),qqq:n(r.qqq_value),total:n(r.total_value)}));
  S.tx=tx.data.map(r=>({id:r.id,asset:r.asset,type:r.type,date:r.tx_date,qty:+r.qty,price:n(r.price),amount:+r.amount,fee:+r.fee,cur:r.currency,idr:n(r.idr_value),est:r.idr_estimate,venue:r.venue||"",notes:r.notes||""}));
  S.cash=ca.data.map(r=>({id:r.id,date:r.entry_date,type:r.type,amount:+r.amount,note:r.note||""}));
  S.snaps=sn.data.map(r=>({...r.data,id:r.id,date:r.snap_date}));
@@ -131,8 +131,10 @@ function months(){if(!S.tx.length)return[];const a=S.tx.map(t=>t.date).sort()[0]
  for(;;){const k=y+"-"+String(m).padStart(2,"0");if(k>b)break;o.push(k);if(++m>12){m=1;y++}}return o}
 function pts(k){const now=today().slice(0,7);return months().map(m=>{const c=calc(m+"-31"),a=k==="ALL"?c.cap:c[k==="BTC"?"B":"Q"].ci;
  const sn=[...S.snaps].filter(s=>s.date.slice(0,7)===m).sort((x,y)=>x.date<y.date?-1:1).pop();let mv=null,src=null;
- if(sn){mv=k==="ALL"?sn.mv:sn[k==="BTC"?"btcMv":"qqqMv"];src="snapshot"}
- else if(m===now){const L=calc();mv=k==="ALL"?L.mv:L[k==="BTC"?"B":"Q"].mv;if(mv!=null)src="live"}
+  const dr=[...(S.daily||[])].filter(r=>r.day<=m+"-31").pop();
+ if(dr){const v=k==="ALL"?dr.total:k==="BTC"?dr.btc:dr.qqq;if(v!=null){mv=v;src="daily"}}
+ if(mv==null&&sn){mv=k==="ALL"?sn.mv:sn[k==="BTC"?"btcMv":"qqqMv"];src="snapshot"}
+ else if(mv==null&&m===now){const L=calc();mv=k==="ALL"?L.mv:L[k==="BTC"?"B":"Q"].mv;if(mv!=null)src="live"}
  return{m,cap:a,mv,src,sn}})}
 function cut(P){const n={"1M":1,"3M":3,"6M":6}[rng];if(n)return P.slice(-n);if(rng==="YTD")return P.filter(p=>p.m>=today().slice(0,4));return P}
 
