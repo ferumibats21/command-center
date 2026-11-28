@@ -347,6 +347,5 @@ document.addEventListener("mouseover",ev=>{const t=ev.target;if(!t.dataset||t.da
  $("#tip").innerHTML=`<b>${fd(p.m)}</b><br>Modal: ${idr(p.cap)}<br>Nilai: ${p.mv==null?'<span class="wn">harga belum ada</span>':idr(p.mv)}<br>Untung/rugi: <span class="${cl(u)}">${idr(u)}</span><br>Perubahan hari itu: <span class="${cl(dd)}">${idr(dd)} (${pc(dp)})</span>${p.flow?`<br><span class="mu">Setoran hari itu: ${idr(p.flow)}</span>`:""}${p.flags&&p.flags.length?`<br><span class="mu">${p.flags.join(", ")}</span>`:""}`;$("#tip").style.display="block"});
 document.addEventListener("click",ev=>{const b=ev.target.closest("[data-view]");if(b){view=b.dataset.view;render()}});
 {const _ov=PG.overview;PG.overview=()=>_ov().replace('<div class="seg">','<div class="seg"><button class="'+(view==="D"?"on":"")+'" data-view="D">Harian</button><button class="'+(view==="M"?"on":"")+'" data-view="M">Bulanan</button></div> <div class="seg">')}
- 
- start();
+start();
 </script></body></html>
