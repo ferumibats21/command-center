@@ -302,5 +302,51 @@ document.addEventListener("change",ev=>{const i=ev.target,d=i.dataset;
 addEventListener("hashchange",()=>{const h=location.hash.slice(1);if(PG[h]){page=h;render()}});
 $("#md").addEventListener("click",ev=>{if(ev.target.id==="md")closeM()});
 
-start();
+/* ===== tampilan harian (day-to-day) ===== */
+let view="D";
+const dailyPts=()=>(S.daily||[]).map(r=>({m:r.day,cap:r.cost,mv:r.total,flow:r.flow,flags:r.flags,src:"daily"}));
+async function load(){
+ const q=t=>SB.from(t).select("*"),lp=y=>SB.from("prices").select("*").eq("symbol",y).order("as_of",{ascending:false}).limit(1);
+ const R=await Promise.all([q("transactions"),q("cash_entries"),q("snapshots"),q("settings"),lp("BTCIDR"),lp("QQQ"),lp("USDIDR"),SB.from("portfolio_daily").select("day,btc_value,qqq_value,total_value,cost_basis_idr,cash_flow_idr,flags").order("day",{ascending:true}).limit(1000)]);
+ R.forEach(r=>{if(r.error)throw r.error});
+ const [tx,ca,sn,se,pb,pq,pf,pd]=R,n=x=>x==null?null:+x;
+ S=D0();
+ S.daily=pd.data.map(r=>({day:r.day,btc:n(r.btc_value),qqq:n(r.qqq_value),total:n(r.total_value),cost:n(r.cost_basis_idr),flow:n(r.cash_flow_idr)||0,flags:r.flags||[]}));
+ S.tx=tx.data.map(r=>({id:r.id,asset:r.asset,type:r.type,date:r.tx_date,qty:+r.qty,price:n(r.price),amount:+r.amount,fee:+r.fee,cur:r.currency,idr:n(r.idr_value),est:r.idr_estimate,venue:r.venue||"",notes:r.notes||""}));
+ S.cash=ca.data.map(r=>({id:r.id,date:r.entry_date,type:r.type,amount:+r.amount,note:r.note||""}));
+ S.snaps=sn.data.map(r=>({...r.data,id:r.id,date:r.snap_date}));
+ const d=se.data[0]?.data||{},st=d.set||d;["budget","day","tz"].forEach(k=>{if(st[k]!=null)S.set[k]=st[k]});S.market=d.market||{};
+ [["btc",pb],["qqq",pq],["fx",pf]].forEach(([k,r])=>{const x=r.data[0];if(x)S.prices[k]={v:+x.value,ts:Date.parse(x.as_of),src:x.source,type:x.price_type,cur:x.currency}});
+ LAST=clone(S)}
+function pts(k){const now=today().slice(0,7);return months().map(m=>{const c=calc(m+"-31"),a=k==="ALL"?c.cap:c[k==="BTC"?"B":"Q"].ci;
+ const sn=[...S.snaps].filter(s=>s.date.slice(0,7)===m).sort((x,y)=>x.date<y.date?-1:1).pop();let mv=null,src=null;
+ const dr=[...(S.daily||[])].filter(r=>r.day<=m+"-31").pop();
+ if(dr){const v=k==="ALL"?dr.total:k==="BTC"?dr.btc:dr.qqq;if(v!=null){mv=v;src="daily"}}
+ if(mv==null&&sn){mv=k==="ALL"?sn.mv:sn[k==="BTC"?"btcMv":"qqqMv"];src="snapshot"}
+ else if(mv==null&&m===now){const L=calc();mv=k==="ALL"?L.mv:L[k==="BTC"?"B":"Q"].mv;if(mv!=null)src="live"}
+ return{m,cap:a,mv,src,sn}})}
+function cut(P){const dl=P[0]&&P[0].m.length>7,n=(dl?{"1M":30,"3M":90,"6M":180}:{"1M":1,"3M":3,"6M":6})[rng];if(n)return P.slice(-n);if(rng==="YTD")return P.filter(p=>p.m>=today().slice(0,4));return P}
+function chart(P,id){
+ if((id==="ov"||id==="pf")&&view==="D")P=cut(dailyPts());
+ if(!P.length)return'<div class="emp">📭 Belum ada data. Tambahkan transaksi pertama.</div>';
+ CH[id]=P;const W=640,H=250,L=44,R=10,T=10,Bt=26,v=P.flatMap(p=>[p.cap,p.mv]).filter(x=>x!=null),mx=Math.max(...v,1)*1.1;
+ const lb=m=>m.length>7?new Date(m+"T00:00").toLocaleDateString("id-ID",{day:"numeric",month:"short"}):fm(m),sp=Math.ceil(P.length/7);
+ const x=i=>L+(P.length>1?i*(W-L-R)/(P.length-1):(W-L-R)/2),y=n=>T+(1-n/mx)*(H-T-Bt);
+ const ln=k=>{let d="",s=0;P.forEach((p,i)=>{if(p[k]==null){s=0;return}d+=(s?"L":"M")+x(i)+" "+y(p[k]);s=1});return d};
+ let g="";for(let i=0;i<=4;i++){const n=mx*i/4/1.1*1.1;g+=`<line x1="${L}" x2="${W-R}" y1="${y(n)}" y2="${y(n)}" stroke="#293241" stroke-dasharray="3 4"/><text x="${L-6}" y="${y(n)+3}" text-anchor="end">${sh(n)}</text>`}
+ const dots=(k,c)=>P.length>40?"":P.map((p,i)=>p[k]==null?"":`<circle cx="${x(i)}" cy="${y(p[k])}" r="3.5" fill="${c}"/>`).join("");
+ const xl=P.map((p,i)=>i%sp===0?`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${lb(p.m)}</text>`:"").join("");
+ const hv=P.map((p,i)=>`<rect data-ch="${id}" data-i="${i}" x="${x(i)-(W-L-R)/Math.max(P.length,1)/2}" y="0" width="${(W-L-R)/Math.max(P.length,1)}" height="${H}" fill="transparent"/>`).join("");
+ const pend=P.some(p=>p.mv==null);
+ return`<svg class="ch" viewBox="0 0 ${W} ${H}">${g}${xl}<path d="${ln("cap")}" fill="none" stroke="var(--qq)" stroke-width="2.2"/><path d="${ln("mv")}" fill="none" stroke="var(--gr)" stroke-width="2.2"/>${dots("cap","var(--qq)")}${dots("mv","var(--gr)")}${hv}</svg>
+ <div class="lg"><span><i class="dot" style="background:var(--qq)"></i>Cumulative Invested Capital</span><span><i class="dot" style="background:var(--gr)"></i>Portfolio Market Value</span>${pend?'<span class="wn">⏳ Historical market value not available (Pending Historical Price Data)</span>':""}</div>`}
+document.addEventListener("mouseover",ev=>{const t=ev.target;if(!t.dataset||t.dataset.i==null)return;
+ const A=CH[t.dataset.ch],i=+t.dataset.i,p=A[i];if(p.m.length<=7)return;
+ const q=A[i-1],u=p.mv==null?null:p.mv-p.cap;let dd=null,dp=null;
+ if(q&&q.mv!=null&&p.mv!=null){dd=p.mv-q.mv-(p.flow||0);dp=dd/q.mv*100}
+ $("#tip").innerHTML=`<b>${fd(p.m)}</b><br>Modal: ${idr(p.cap)}<br>Nilai: ${p.mv==null?'<span class="wn">harga belum ada</span>':idr(p.mv)}<br>Untung/rugi: <span class="${cl(u)}">${idr(u)}</span><br>Perubahan hari itu: <span class="${cl(dd)}">${idr(dd)} (${pc(dp)})</span>${p.flow?`<br><span class="mu">Setoran hari itu: ${idr(p.flow)}</span>`:""}${p.flags&&p.flags.length?`<br><span class="mu">${p.flags.join(", ")}</span>`:""}`;$("#tip").style.display="block"});
+document.addEventListener("click",ev=>{const b=ev.target.closest("[data-view]");if(b){view=b.dataset.view;render()}});
+{const _ov=PG.overview;PG.overview=()=>_ov().replace('<div class="seg">','<div class="seg"><button class="'+(view==="D"?"on":"")+'" data-view="D">Harian</button><button class="'+(view==="M"?"on":"")+'" data-view="M">Bulanan</button></div> <div class="seg">')}
+ 
+ start();
 </script></body></html>
